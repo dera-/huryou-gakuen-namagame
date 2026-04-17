@@ -195,15 +195,27 @@ module.exports.main = function main() {
 			var countdownFrames = titleFrames;
 			root.append(new g.FilledRect({ scene: scene, x: 0, y: 0, width: W, height: H, cssColor: "#1a1a2e" }));
 			root.append(new g.Label({ scene: scene, x: 40, y: 36, text: "不良学園！校舎裏の戦い", font: font, fontSize: 48, textColor: "#ffd166" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 120, text: "ルール", font: font, fontSize: 34, textColor: "#80ed99" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 170, text: "迫りくるチンピラ・番長共をぶっ倒せ！", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 205, text: "画面ドラッグで移動。敵を射程内に入れてタップすると通常攻撃。", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 240, text: "射程内で敵を0.5秒長押しすると強攻撃。長押し中は主人公の下にゲージが出る。", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 275, text: "強攻撃は通常攻撃の3倍ダメージで、撃破時スコアが2倍。", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 310, text: "アイテムは射程内に入るだけで取得。", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 345, text: "焼きそばパンでHP35回復、木刀で攻撃力20%UP、サングラスで射程角度15度UP。", font: smallFont, fontSize: 24, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 40, y: 380, text: "チンピラ掃討→番長戦→超乱戦を100秒で戦い抜け。HPが0になっても再挑戦できる。", font: smallFont, fontSize: 24, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 40, y: 120, text: "ルール説明", font: font, fontSize: 34, textColor: "#80ed99" }));
+			root.append(new g.Label({ scene: scene, x: 40, y: 165, text: "MISSION", font: font, fontSize: 24, textColor: "#ffd166" }));
+			root.append(new g.Label({ scene: scene, x: 170, y: 165, text: "迫りくるチンピラ・番長共をぶっ倒せ！", font: smallFont, fontSize: 24, textColor: "white" }));
+			root.append(new g.FilledRect({ scene: scene, x: 40, y: 210, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
+			root.append(new g.Label({ scene: scene, x: 60, y: 228, text: "1", font: font, fontSize: 30, textColor: "#ffd166" }));
+			root.append(new g.Label({ scene: scene, x: 110, y: 222, text: "画面をドラッグして移動", font: font, fontSize: 28, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 470, y: 226, text: "指 or ポインタを置いた方向へ主人公が向く。近くでは細かく動ける。", font: smallFont, fontSize: 22, textColor: "#d9ed92" }));
+			root.append(new g.FilledRect({ scene: scene, x: 40, y: 300, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
+			root.append(new g.Label({ scene: scene, x: 60, y: 318, text: "2", font: font, fontSize: 30, textColor: "#ffd166" }));
+			root.append(new g.Label({ scene: scene, x: 110, y: 312, text: "黒の扇形(射程)内で敵を攻撃", font: font, fontSize: 26, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 470, y: 316, text: "タップで通常攻撃。0.5秒長押しで強攻撃。強攻撃は3倍ダメージ+2倍スコア。", font: smallFont, fontSize: 22, textColor: "#90e0ef" }));
+			root.append(new g.FilledRect({ scene: scene, x: 40, y: 390, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
+			root.append(new g.Label({ scene: scene, x: 60, y: 408, text: "3", font: font, fontSize: 30, textColor: "#ffd166" }));
+			root.append(new g.Label({ scene: scene, x: 110, y: 402, text: "アイテムで強化", font: font, fontSize: 28, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 470, y: 406, text: "焼きそばパンでHP回復。木刀で攻撃力UP。サングラスで射程角度UP。", font: smallFont, fontSize: 22, textColor: "#f8edeb" }));
+			root.append(new g.FilledRect({ scene: scene, x: 40, y: 480, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
+			root.append(new g.Label({ scene: scene, x: 60, y: 498, text: "4", font: font, fontSize: 30, textColor: "#ffd166" }));
+			root.append(new g.Label({ scene: scene, x: 110, y: 492, text: "100秒を戦い抜け", font: font, fontSize: 28, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 470, y: 496, text: "チンピラ掃討 → 番長戦 → 超乱戦。HPが0でも残り時間で再挑戦できる。", font: smallFont, fontSize: 22, textColor: "#ffcad4" }));
 			var countdownLabel = new g.Label({ scene: scene, x: 40, y: 490, text: "開始まで: 15", font: font, fontSize: 34, textColor: "#ffd166" });
+			countdownLabel.y = 580;
 			root.append(countdownLabel);
 			titleUpdateHandler = function () {
 				if (state !== "title") return;
@@ -518,6 +530,10 @@ module.exports.main = function main() {
 				if (inRange(enemy)) attackEnemy(enemy, false);
 			}
 
+			function canStartEnemyAttack(enemy) {
+				return state === "play" && player.cooldown <= 0 && player.strongLock <= 0 && inRange(enemy);
+			}
+
 			function spawnEnemy(x, y, hp, isBoss, frameKey) {
 				var frame = enemyFrames[frameKey];
 				var hit = new g.FilledRect({ scene: scene, x: x, y: y, width: 128, height: 128, cssColor: "rgba(255,120,80,0.18)", touchable: true });
@@ -527,13 +543,31 @@ module.exports.main = function main() {
 				var dangerLabel = isBoss ? new g.Label({ scene: scene, x: x + 22, y: y - 38, text: "強敵", font: smallFont, fontSize: 24, textColor: "#ff6b6b" }) : null;
 				var obj = { hit: hit, e: e, hpBg: hpBg, hpBar: hpBar, dangerLabel: dangerLabel, hp: hp, maxHp: hp, isBoss: isBoss, atkCd: 0, faceRight: false };
 				function onEnemyPointDown(ev) {
-					beginEnemyPress(obj, ev.pointerId);
+					var enemyCx = obj.hit.x + obj.hit.width / 2;
+					var enemyCy = obj.hit.y + obj.hit.height / 2;
+					updatePlayerAim(enemyCx, enemyCy);
+					if (canStartEnemyAttack(obj)) {
+						beginEnemyPress(obj, ev.pointerId);
+					} else {
+						beginPointerControl(ev.pointerId, enemyCx, enemyCy);
+					}
+				}
+				function onEnemyPointMove(ev) {
+					if (activePress && activePress.pointerId === ev.pointerId && activePress.enemy === obj) {
+						updatePlayerAim(obj.hit.x + obj.hit.width / 2, obj.hit.y + obj.hit.height / 2);
+						return;
+					}
+					if (state !== "play" || player.strongLock > 0) return;
+					movePointerControl(ev.pointerId, ev.prevDelta.x, ev.prevDelta.y);
 				}
 				function onEnemyPointUp(ev) {
+					endPointerControl(ev.pointerId);
 					endEnemyPress(obj, ev.pointerId);
 				}
 				hit.onPointDown.add(onEnemyPointDown);
 				e.onPointDown.add(onEnemyPointDown);
+				hit.onPointMove.add(onEnemyPointMove);
+				e.onPointMove.add(onEnemyPointMove);
 				hit.onPointUp.add(onEnemyPointUp);
 				e.onPointUp.add(onEnemyPointUp);
 				root.append(hit);
@@ -556,13 +590,14 @@ module.exports.main = function main() {
 				var itemImage = itemImages[itemType];
 				var e = new g.Sprite({ scene: scene, src: itemImage, x: x, y: y, width: 64, height: 64, srcWidth: itemImage.width, srcHeight: itemImage.height, touchable: true });
 				var it = { e: e, used: false, type: itemType, collect: null };
-				function collectItem() {
-					if (state !== "play" || it.used) return false;
-					if (!inRangeItem(it)) return false;
-					it.used = true;
-					itemCount++;
-					e.hide();
-					playSound(sounds.item);
+					function collectItem() {
+						if (state !== "play" || it.used) return false;
+						if (!inRangeItem(it)) return false;
+						it.used = true;
+						if (player.pointerId !== null) endPointerControl(player.pointerId);
+						itemCount++;
+						e.hide();
+						playSound(sounds.item);
 					addScore(50);
 					if (it.type === "pan") {
 						player.hp = clamp(player.hp + 35, 0, player.maxHp);
@@ -583,10 +618,19 @@ module.exports.main = function main() {
 					uiHp.text = "HP: " + player.hp; uiHp.invalidate();
 					refreshScoreLabels();
 					return true;
-				}
-				it.collect = collectItem;
-				e.onPointDown.add(function () {
-					collectItem();
+					}
+					it.collect = collectItem;
+					e.onPointDown.add(function (ev) {
+						if (!collectItem()) {
+							beginPointerControl(ev.pointerId, it.e.x + it.e.width / 2, it.e.y + it.e.height / 2);
+						}
+					});
+				e.onPointMove.add(function (ev) {
+					if (state !== "play" || player.strongLock > 0) return;
+					movePointerControl(ev.pointerId, ev.prevDelta.x, ev.prevDelta.y);
+				});
+				e.onPointUp.add(function (ev) {
+					endPointerControl(ev.pointerId);
 				});
 				root.append(e);
 				items.push(it);
@@ -713,27 +757,44 @@ module.exports.main = function main() {
 				}
 			}
 
-			bg.onPointDown.add(function (ev) {
-				if (state !== "play") return;
-				if (player.pointerId !== null) return;
-				player.pointerId = ev.pointerId;
-				player.dragging = true;
-				updatePlayerAim(ev.point.x, ev.point.y);
-			});
-			bg.onPointMove.add(function (ev) {
-				if (state !== "play") return;
-				if (player.strongLock > 0) return;
-				if (player.pointerId !== ev.pointerId) return;
-				player.dragging = true;
-				updatePlayerAim(player.dragTargetX + ev.prevDelta.x, player.dragTargetY + ev.prevDelta.y);
-			});
-			bg.onPointUp.add(function (ev) {
-				if (state !== "play") return;
-				if (player.pointerId !== ev.pointerId) return;
+				function beginPointerControl(pointerId, targetX, targetY) {
+					if (player.pointerId !== null && player.pointerId !== pointerId) return;
+					player.pointerId = pointerId;
+					player.dragging = false;
+					updatePlayerAim(targetX, targetY);
+				}
+
+				function movePointerControl(pointerId, dx, dy) {
+					if (player.pointerId === null) {
+						player.pointerId = pointerId;
+					} else if (player.pointerId !== pointerId) {
+						return;
+					}
+					if (dx === 0 && dy === 0) return;
+					player.dragging = true;
+					updatePlayerAim(player.dragTargetX + dx, player.dragTargetY + dy);
+				}
+
+			function endPointerControl(pointerId) {
+				if (player.pointerId !== pointerId) return;
 				player.pointerId = null;
 				player.dragging = false;
 				player.targetDx = 0;
 				player.targetDy = 0;
+			}
+
+			bg.onPointDown.add(function (ev) {
+				if (state !== "play") return;
+				beginPointerControl(ev.pointerId, ev.point.x, ev.point.y);
+			});
+			bg.onPointMove.add(function (ev) {
+				if (state !== "play") return;
+				if (player.strongLock > 0) return;
+				movePointerControl(ev.pointerId, ev.prevDelta.x, ev.prevDelta.y);
+			});
+			bg.onPointUp.add(function (ev) {
+				if (state !== "play") return;
+				endPointerControl(ev.pointerId);
 			});
 
 			function inRange(enemy) {
@@ -835,19 +896,20 @@ module.exports.main = function main() {
 				if (player.cooldown > 0) player.cooldown--;
 				if (player.strongLock > 0) player.strongLock--;
 
-				var enemyBaseSpeed = 0.4;
-				var playerMaxSpeed = enemyBaseSpeed * 6.0;
-				var playerDeadZone = 24;
-				var tdx = player.targetDx;
-				var tdy = player.targetDy;
-				var tlen = Math.sqrt(tdx * tdx + tdy * tdy);
-				if (player.dragging && tlen > playerDeadZone) {
-					var desiredSpeed = Math.min(playerMaxSpeed, Math.max(0.45, (tlen - playerDeadZone) * 0.08));
-					var tvx = (tdx / tlen) * desiredSpeed;
-					var tvy = (tdy / tlen) * desiredSpeed;
-					player.vx += (tvx - player.vx) * 0.35;
-					player.vy += (tvy - player.vy) * 0.35;
-				} else {
+					var enemyBaseSpeed = 0.4;
+					var playerMaxSpeed = enemyBaseSpeed * 6.0;
+					var playerDeadZone = 24;
+					var movementLocked = !!activePress || player.animType === "attack" || player.animType === "strongAttack";
+					var tdx = player.targetDx;
+					var tdy = player.targetDy;
+					var tlen = Math.sqrt(tdx * tdx + tdy * tdy);
+					if (!movementLocked && player.dragging && tlen > playerDeadZone) {
+						var desiredSpeed = Math.min(playerMaxSpeed, Math.max(0.45, (tlen - playerDeadZone) * 0.08));
+						var tvx = (tdx / tlen) * desiredSpeed;
+						var tvy = (tdy / tlen) * desiredSpeed;
+						player.vx += (tvx - player.vx) * 0.35;
+						player.vy += (tvy - player.vy) * 0.35;
+					} else {
 					player.vx *= 0.4;
 					player.vy *= 0.4;
 					if (Math.abs(player.vx) < 0.05) player.vx = 0;
@@ -858,13 +920,14 @@ module.exports.main = function main() {
 				player.hit.modified();
 				syncPlayerSpritePos();
 
-				if (activePress) {
-					if (activePress.enemy.hp <= 0 || activePress.enemy.e.destroyed() || !inRange(activePress.enemy)) {
-						clearActivePress();
-					} else {
-						var holdFrames = g.game.age - activePress.startAge;
-						var progress = Math.min(1, holdFrames / longPressFrames);
-						holdGaugeBar.width = Math.round(96 * progress);
+					if (activePress) {
+						if (activePress.enemy.hp <= 0 || activePress.enemy.e.destroyed() || !inRange(activePress.enemy)) {
+							clearActivePress();
+						} else {
+							updatePlayerAim(activePress.enemy.hit.x + activePress.enemy.hit.width / 2, activePress.enemy.hit.y + activePress.enemy.hit.height / 2);
+							var holdFrames = g.game.age - activePress.startAge;
+							var progress = Math.min(1, holdFrames / longPressFrames);
+							holdGaugeBar.width = Math.round(96 * progress);
 						holdGaugeBar.modified();
 						if (holdFrames >= longPressFrames) {
 							var pressedEnemy = activePress.enemy;
