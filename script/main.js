@@ -204,7 +204,7 @@ module.exports.main = function main() {
 			root.append(new g.Label({ scene: scene, x: 470, y: 226, text: "指 or ポインタを置いた方向へ主人公が向く。近くでは細かく動ける。", font: smallFont, fontSize: 22, textColor: "#d9ed92" }));
 			root.append(new g.FilledRect({ scene: scene, x: 40, y: 300, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
 			root.append(new g.Label({ scene: scene, x: 60, y: 318, text: "2", font: font, fontSize: 30, textColor: "#ffd166" }));
-			root.append(new g.Label({ scene: scene, x: 110, y: 312, text: "敵を射程に入れて攻撃", font: font, fontSize: 28, textColor: "white" }));
+			root.append(new g.Label({ scene: scene, x: 110, y: 312, text: "黒の扇形(射程)内で敵を攻撃", font: font, fontSize: 26, textColor: "white" }));
 			root.append(new g.Label({ scene: scene, x: 470, y: 316, text: "タップで通常攻撃。0.5秒長押しで強攻撃。強攻撃は3倍ダメージ+2倍スコア。", font: smallFont, fontSize: 22, textColor: "#90e0ef" }));
 			root.append(new g.FilledRect({ scene: scene, x: 40, y: 390, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
 			root.append(new g.Label({ scene: scene, x: 60, y: 408, text: "3", font: font, fontSize: 30, textColor: "#ffd166" }));
