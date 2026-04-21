@@ -87,12 +87,22 @@ module.exports.main = function main() {
 			win: scene.asset.getAudioById("se_win"),
 			lose: scene.asset.getAudioById("se_lose")
 		};
+		var soundThrottleFrames = {
+			punch: 2,
+			kick: 4,
+			damage: 4,
+			change: 8,
+			item: 4,
+			win: 16,
+			lose: 16
+		};
 		var itemImages = {
 			pan: scene.asset.getImageById("yakisoba_pan"),
 			woodSword: scene.asset.getImageById("wood_sword"),
 			sunglass: scene.asset.getImageById("sunglass")
 		};
 		var bgImage = scene.asset.getImageById("kousya_ura");
+		var rangeSurfaceCache = {};
 
 		var state = "title";
 		var score = 0;
@@ -129,8 +139,17 @@ module.exports.main = function main() {
 		var bgmPlayer = null;
 		g.game.vars.gameState = { score: 0 };
 
-		function playSound(audioAsset) {
+		function playSound(name, force) {
+			var audioAsset = sounds[name];
 			if (!audioAsset) return null;
+			if (!force) {
+				var throttle = soundThrottleFrames[name] || 0;
+				if (throttle > 0) {
+					var nextPlayableAge = audioAsset._nextPlayableAge || 0;
+					if (g.game.age < nextPlayableAge) return null;
+					audioAsset._nextPlayableAge = g.game.age + throttle;
+				}
+			}
 			return audioAsset.play();
 		}
 
@@ -252,7 +271,7 @@ module.exports.main = function main() {
 
 			var bg = new g.Sprite({ scene: scene, src: bgImage, x: 0, y: 0, width: W, height: H, srcWidth: bgImage.width, srcHeight: bgImage.height, touchable: true });
 			root.append(bg);
-			bgmPlayer = playSound(sounds.bgmGame);
+			bgmPlayer = playSound("bgmGame", true);
 
 			var uiHp = new g.Label({ scene: scene, x: 20, y: 10, text: "HP: 100", font: font, fontSize: 28, textColor: "white" });
 			var uiScore = new g.Label({ scene: scene, x: 220, y: 10, text: "SCORE: " + score, font: font, fontSize: 28, textColor: "white" });
@@ -379,7 +398,15 @@ module.exports.main = function main() {
 			};
 			root.append(player.hit);
 
-			var rangeSurface = createRangeSectorSurface(player.range, player.rangeAngle, "#90e0ef", 0.06);
+			function getRangeSurface(radius, sectorAngle, color, alpha) {
+				var key = [radius, sectorAngle, color, alpha].join(":");
+				if (!rangeSurfaceCache[key]) {
+					rangeSurfaceCache[key] = createRangeSectorSurface(radius, sectorAngle, color, alpha);
+				}
+				return rangeSurfaceCache[key];
+			}
+
+			var rangeSurface = getRangeSurface(player.range, player.rangeAngle, "#90e0ef", 0.06);
 			var rangeSprite = new g.Sprite({ scene: scene, src: rangeSurface, x: player.hit.x + 64, y: player.hit.y + 64, width: player.range * 2, height: player.range * 2, srcWidth: player.range * 2, srcHeight: player.range * 2, angle: 0, anchorX: 0.5, anchorY: 0.5 });
 			rangeSprite.opacity = 0.9;
 			root.append(rangeSprite);
@@ -400,7 +427,7 @@ module.exports.main = function main() {
 			root.append(holdGaugeBar);
 
 			function refreshRangeSprite() {
-				rangeSurface = createRangeSectorSurface(player.range, player.rangeAngle, "#90e0ef", 0.06);
+				rangeSurface = getRangeSurface(player.range, player.rangeAngle, "#90e0ef", 0.06);
 				rangeSprite.src = rangeSurface;
 				rangeSprite.srcWidth = player.range * 2;
 				rangeSprite.srcHeight = player.range * 2;
@@ -506,6 +533,21 @@ module.exports.main = function main() {
 				holdGaugeBar.modified();
 			}
 
+			function removeEnemy(enemy) {
+				if (activePress && activePress.enemy === enemy) clearActivePress();
+				if (!enemy.hit.destroyed()) enemy.hit.destroy();
+				if (!enemy.e.destroyed()) enemy.e.destroy();
+				if (!enemy.hpBg.destroyed()) enemy.hpBg.destroy();
+				if (!enemy.hpBar.destroyed()) enemy.hpBar.destroy();
+				if (enemy.dangerLabel && !enemy.dangerLabel.destroyed()) enemy.dangerLabel.destroy();
+				enemies = enemies.filter(function (en) { return en !== enemy; });
+			}
+
+			function removeItem(item) {
+				if (!item.e.destroyed()) item.e.destroy();
+				items = items.filter(function (it) { return it !== item; });
+			}
+
 			function beginEnemyPress(enemy, pointerId) {
 				if (state !== "play" || player.cooldown > 0 || player.strongLock > 0) return;
 				if (!inRange(enemy)) return;
@@ -581,7 +623,7 @@ module.exports.main = function main() {
 			var items = [];
 			function removeAllItems() {
 				items.forEach(function (it) {
-					if (!it.e.destroyed()) it.e.hide();
+					if (!it.e.destroyed()) it.e.destroy();
 				});
 				items = [];
 			}
@@ -590,14 +632,14 @@ module.exports.main = function main() {
 				var itemImage = itemImages[itemType];
 				var e = new g.Sprite({ scene: scene, src: itemImage, x: x, y: y, width: 64, height: 64, srcWidth: itemImage.width, srcHeight: itemImage.height, touchable: true });
 				var it = { e: e, used: false, type: itemType, collect: null };
-					function collectItem() {
-						if (state !== "play" || it.used) return false;
-						if (!inRangeItem(it)) return false;
-						it.used = true;
-						if (player.pointerId !== null) endPointerControl(player.pointerId);
-						itemCount++;
-						e.hide();
-						playSound(sounds.item);
+				function collectItem() {
+					if (state !== "play" || it.used) return false;
+					if (!inRangeItem(it)) return false;
+					it.used = true;
+					if (player.pointerId !== null) endPointerControl(player.pointerId);
+					itemCount++;
+					playSound("item");
+					removeItem(it);
 					addScore(50);
 					if (it.type === "pan") {
 						player.hp = clamp(player.hp + 35, 0, player.maxHp);
@@ -618,13 +660,13 @@ module.exports.main = function main() {
 					uiHp.text = "HP: " + player.hp; uiHp.invalidate();
 					refreshScoreLabels();
 					return true;
+				}
+				it.collect = collectItem;
+				e.onPointDown.add(function (ev) {
+					if (!collectItem()) {
+						beginPointerControl(ev.pointerId, it.e.x + it.e.width / 2, it.e.y + it.e.height / 2);
 					}
-					it.collect = collectItem;
-					e.onPointDown.add(function (ev) {
-						if (!collectItem()) {
-							beginPointerControl(ev.pointerId, it.e.x + it.e.width / 2, it.e.y + it.e.height / 2);
-						}
-					});
+				});
 				e.onPointMove.add(function (ev) {
 					if (state !== "play" || player.strongLock > 0) return;
 					movePointerControl(ev.pointerId, ev.prevDelta.x, ev.prevDelta.y);
@@ -644,7 +686,7 @@ module.exports.main = function main() {
 			function spawnStage1() {
 				currentStage = 1;
 				uiProg.text = "進行: チンピラ掃討"; uiProg.invalidate();
-				playSound(sounds.change);
+				playSound("change");
 				var p1 = randomEdgeSpawn(128, 128);
 				var p2 = randomEdgeSpawn(128, 128);
 				var p3 = randomEdgeSpawn(128, 128);
@@ -657,7 +699,7 @@ module.exports.main = function main() {
 			function spawnStage2() {
 				currentStage = 2;
 				uiProg.text = "進行: 番長戦"; uiProg.invalidate();
-				playSound(sounds.change);
+				playSound("change");
 				var bossPos = randomEdgeSpawn(128, 128);
 				spawnEnemy(bossPos.x, bossPos.y, 120, true, "boss");
 				var m1 = randomEdgeSpawn(128, 128);
@@ -672,7 +714,7 @@ module.exports.main = function main() {
 			function startStage3() {
 				currentStage = 3;
 				uiProg.text = "進行: 超乱戦！とにかく倒せ！"; uiProg.invalidate();
-				playSound(sounds.change);
+				playSound("change");
 				stage3EnemyTimer = stage3EnemySpawn;
 				stage3ItemTimer = stage3ItemSpawn;
 			}
@@ -718,7 +760,7 @@ module.exports.main = function main() {
 					provisionalBossKillCount = bossKillCount;
 					publishScore(provisionalScore);
 				}
-				playSound(sounds.lose);
+				playSound("lose");
 				clearRoot();
 				root.append(new g.FilledRect({ scene: scene, x: 0, y: 0, width: W, height: H, cssColor: "#111" }));
 				root.append(new g.Label({ scene: scene, x: 40, y: 60, text: "超ボコられた・・・次はやりかえしてやるよ！", font: font, fontSize: 42, textColor: "#ff6b6b" }));
@@ -757,23 +799,23 @@ module.exports.main = function main() {
 				}
 			}
 
-				function beginPointerControl(pointerId, targetX, targetY) {
-					if (player.pointerId !== null && player.pointerId !== pointerId) return;
-					player.pointerId = pointerId;
-					player.dragging = false;
-					updatePlayerAim(targetX, targetY);
-				}
+			function beginPointerControl(pointerId, targetX, targetY) {
+				if (player.pointerId !== null && player.pointerId !== pointerId) return;
+				player.pointerId = pointerId;
+				player.dragging = false;
+				updatePlayerAim(targetX, targetY);
+			}
 
-				function movePointerControl(pointerId, dx, dy) {
-					if (player.pointerId === null) {
-						player.pointerId = pointerId;
-					} else if (player.pointerId !== pointerId) {
-						return;
-					}
-					if (dx === 0 && dy === 0) return;
-					player.dragging = true;
-					updatePlayerAim(player.dragTargetX + dx, player.dragTargetY + dy);
+			function movePointerControl(pointerId, dx, dy) {
+				if (player.pointerId === null) {
+					player.pointerId = pointerId;
+				} else if (player.pointerId !== pointerId) {
+					return;
 				}
+				if (dx === 0 && dy === 0) return;
+				player.dragging = true;
+				updatePlayerAim(player.dragTargetX + dx, player.dragTargetY + dy);
+			}
 
 			function endPointerControl(pointerId) {
 				if (player.pointerId !== pointerId) return;
@@ -817,7 +859,7 @@ module.exports.main = function main() {
 				player.cooldown = strong ? strongCooldownFrames : 5;
 				player.strongLock = strong ? strongCooldownFrames : 0;
 				setPlayerAnim(strong ? "strongAttack" : "attack", false, strong ? 24 : 14);
-				playSound(strong ? sounds.kick : sounds.punch);
+				playSound(strong ? "kick" : "punch");
 				enemy.hp -= dmg;
 				enemy.hit.cssColor = "rgba(255,255,255,0.28)";
 				enemy.hit.modified();
@@ -836,14 +878,12 @@ module.exports.main = function main() {
 				enemy.e.y = enemy.hit.y + 64;
 				enemy.e.modified();
 				if (enemy.hp <= 0) {
-					if (activePress && activePress.enemy === enemy) clearActivePress();
-					enemy.hit.hide(); enemy.e.hide(); enemy.hpBg.hide(); enemy.hpBar.hide();
-					if (enemy.dangerLabel) enemy.dangerLabel.hide();
 					killCount++;
 					if (enemy.isBoss) bossKillCount++;
 					var baseScore = enemy.isBoss ? 1000 : 120;
 					addScore(strong ? baseScore * 2 : baseScore);
 					refreshScoreLabels();
+					removeEnemy(enemy);
 				}
 				return true;
 			}
@@ -896,20 +936,20 @@ module.exports.main = function main() {
 				if (player.cooldown > 0) player.cooldown--;
 				if (player.strongLock > 0) player.strongLock--;
 
-					var enemyBaseSpeed = 0.4;
-					var playerMaxSpeed = enemyBaseSpeed * 6.0;
-					var playerDeadZone = 24;
-					var movementLocked = !!activePress || player.animType === "attack" || player.animType === "strongAttack";
-					var tdx = player.targetDx;
-					var tdy = player.targetDy;
-					var tlen = Math.sqrt(tdx * tdx + tdy * tdy);
-					if (!movementLocked && player.dragging && tlen > playerDeadZone) {
-						var desiredSpeed = Math.min(playerMaxSpeed, Math.max(0.45, (tlen - playerDeadZone) * 0.08));
-						var tvx = (tdx / tlen) * desiredSpeed;
-						var tvy = (tdy / tlen) * desiredSpeed;
-						player.vx += (tvx - player.vx) * 0.35;
-						player.vy += (tvy - player.vy) * 0.35;
-					} else {
+				var enemyBaseSpeed = 0.4;
+				var playerMaxSpeed = enemyBaseSpeed * 6.0;
+				var playerDeadZone = 24;
+				var movementLocked = !!activePress || player.animType === "attack" || player.animType === "strongAttack";
+				var tdx = player.targetDx;
+				var tdy = player.targetDy;
+				var tlen = Math.sqrt(tdx * tdx + tdy * tdy);
+				if (!movementLocked && player.dragging && tlen > playerDeadZone) {
+					var desiredSpeed = Math.min(playerMaxSpeed, Math.max(0.45, (tlen - playerDeadZone) * 0.08));
+					var tvx = (tdx / tlen) * desiredSpeed;
+					var tvy = (tdy / tlen) * desiredSpeed;
+					player.vx += (tvx - player.vx) * 0.35;
+					player.vy += (tvy - player.vy) * 0.35;
+				} else {
 					player.vx *= 0.4;
 					player.vy *= 0.4;
 					if (Math.abs(player.vx) < 0.05) player.vx = 0;
@@ -920,14 +960,14 @@ module.exports.main = function main() {
 				player.hit.modified();
 				syncPlayerSpritePos();
 
-					if (activePress) {
-						if (activePress.enemy.hp <= 0 || activePress.enemy.e.destroyed() || !inRange(activePress.enemy)) {
-							clearActivePress();
-						} else {
-							updatePlayerAim(activePress.enemy.hit.x + activePress.enemy.hit.width / 2, activePress.enemy.hit.y + activePress.enemy.hit.height / 2);
-							var holdFrames = g.game.age - activePress.startAge;
-							var progress = Math.min(1, holdFrames / longPressFrames);
-							holdGaugeBar.width = Math.round(96 * progress);
+				if (activePress) {
+					if (activePress.enemy.hp <= 0 || activePress.enemy.e.destroyed() || !inRange(activePress.enemy)) {
+						clearActivePress();
+					} else {
+						updatePlayerAim(activePress.enemy.hit.x + activePress.enemy.hit.width / 2, activePress.enemy.hit.y + activePress.enemy.hit.height / 2);
+						var holdFrames = g.game.age - activePress.startAge;
+						var progress = Math.min(1, holdFrames / longPressFrames);
+						holdGaugeBar.width = Math.round(96 * progress);
 						holdGaugeBar.modified();
 						if (holdFrames >= longPressFrames) {
 							var pressedEnemy = activePress.enemy;
@@ -1017,7 +1057,7 @@ module.exports.main = function main() {
 						if (en.atkCd <= 0) {
 							player.hp -= en.isBoss ? 12 : 6;
 							setPlayerAnim("damage", false, 20);
-							playSound(sounds.damage);
+							playSound("damage");
 							en.atkCd = en.isBoss ? 24 : 36;
 							uiHp.text = "HP: " + player.hp; uiHp.invalidate();
 						}
@@ -1038,7 +1078,7 @@ module.exports.main = function main() {
 
 		function showResult(finalScore, finalKillCount, finalBossKillCount, message, useLoseSe, withRetryButton) {
 			clearHandlers();
-			playSound(useLoseSe ? sounds.lose : sounds.win);
+			playSound(useLoseSe ? "lose" : "win");
 			clearRoot();
 			root.append(new g.FilledRect({ scene: scene, x: 0, y: 0, width: W, height: H, cssColor: "#111" }));
 			root.append(new g.Label({ scene: scene, x: 40, y: 60, text: message, font: font, fontSize: 44, textColor: useLoseSe ? "#ff6b6b" : "#80ed99" }));
