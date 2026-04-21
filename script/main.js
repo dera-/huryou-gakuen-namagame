@@ -224,7 +224,7 @@ module.exports.main = function main() {
 			root.append(new g.FilledRect({ scene: scene, x: 40, y: 300, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
 			root.append(new g.Label({ scene: scene, x: 60, y: 318, text: "2", font: font, fontSize: 30, textColor: "#ffd166" }));
 			root.append(new g.Label({ scene: scene, x: 110, y: 312, text: "黒の扇形(射程)内で敵を攻撃", font: font, fontSize: 26, textColor: "white" }));
-			root.append(new g.Label({ scene: scene, x: 470, y: 316, text: "タップで通常攻撃。0.5秒長押しで強攻撃。強攻撃は3倍ダメージ+2倍スコア。", font: smallFont, fontSize: 22, textColor: "#90e0ef" }));
+			root.append(new g.Label({ scene: scene, x: 470, y: 316, text: "敵をタップで通常攻撃。敵を0.5秒長押しで強攻撃。強攻撃は3倍ダメージ+2倍スコア。", font: smallFont, fontSize: 20, textColor: "#90e0ef" }));
 			root.append(new g.FilledRect({ scene: scene, x: 40, y: 390, width: 1220, height: 72, cssColor: "rgba(255,255,255,0.08)" }));
 			root.append(new g.Label({ scene: scene, x: 60, y: 408, text: "3", font: font, fontSize: 30, textColor: "#ffd166" }));
 			root.append(new g.Label({ scene: scene, x: 110, y: 402, text: "アイテムで強化", font: font, fontSize: 28, textColor: "white" }));
@@ -236,6 +236,14 @@ module.exports.main = function main() {
 			var countdownLabel = new g.Label({ scene: scene, x: 40, y: 490, text: "開始まで: 15", font: font, fontSize: 34, textColor: "#ffd166" });
 			countdownLabel.y = 580;
 			root.append(countdownLabel);
+			makeButton("説明をスキップ", W - 260, H - 90, 220, 52, function () {
+				if (state !== "title") return;
+				if (titleUpdateHandler) {
+					scene.onUpdate.remove(titleUpdateHandler);
+					titleUpdateHandler = null;
+				}
+				startGame(true);
+			});
 			titleUpdateHandler = function () {
 				if (state !== "title") return;
 				countdownFrames--;
